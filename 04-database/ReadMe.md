@@ -4,6 +4,9 @@ Avanade Velocity 2022
 
 ## Introduction to SQL
 ---
+Text info
+
+---
 
 ## Retreiving Data
 ---
@@ -22,6 +25,7 @@ SELECT ProductName, UnitPrice, UnitsInStock, UnitsOnOrder, unitprice * (UnitsInS
 
 SELECT * FROM dbo.orders;
 ```
+---
 
 **Lab 1: Retreving Data**
 
@@ -53,7 +57,7 @@ SELECT ProductID, ProductName, UnitsOnOrder, (UnitPrice * UnitsInStock) AS
 SELECT FirstName + ' ' + LastName AS Fullname, Extension FROM dbo.Employees;
 
 ```
-
+---
 
 ## Filtering Rows
 ---
@@ -141,7 +145,7 @@ SELECT * FROM dbo.Customers
 WHERE City not like 'L%'; --Anything not starting with an L
 
 ```
-
+---
 **Lab 2: Filtering Rows:**
 
 ```sql
@@ -268,6 +272,7 @@ WHERE
  (UnitsInStock + UnitsOnOrder) * UnitPrice > 2000
 
 ```
+---
 ## Sorting Rows
 ---
 
@@ -333,6 +338,111 @@ ORDER BY Freight DESC;
 SELECT TOP 5 PERCENT *
 FROM dbo.Orders
 ORDER BY OrderID DESC;
+
+```
+---
+**Lab Exercise 3: Sorting Rows:**
+
+```sql
+-- Exercise 1: Basic ORDER by clauses: --
+
+USE Northwind;
+
+--Task 1: Create a report that only returns current products: --
+
+SELECT ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM dbo.Products
+WHERE Discontinued = 0;
+
+
+--Task 2: Write a report that sorts current products by category: --
+SELECT ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM dbo.Products
+WHERE Discontinued = 0
+ORDER BY CategoryID;
+
+--Task 3: Write a report that sorts current products by category and unir price: --
+SELECT ProductID, ProductName, CategoryID, Discontinued, UnitPrice
+FROM dbo.Products
+WHERE Discontinued = 0
+ORDER BY CategoryID, UnitPrice DESC;
+
+```
+
+```sql
+-- Exercise 2: Sorting on calculated columns: --
+
+--Task 1: Re-use an existing query: --
+
+USE	Northwind;
+
+SELECT ProductID, ProductName, UnitsOnOrder, 
+	   (UnitPrice * UnitsInStock) AS CurrentStockValue, 
+	   ((UnitsOnOrder + UnitsInStock) * UnitPrice) AS FutureStockValue 
+FROM dbo.Products;
+
+
+-- Task 2: Write a report that sorts on a calculated column: Two ways: --
+
+--First way:--
+SELECT ProductID, ProductName, UnitsOnOrder, 
+	   (UnitPrice * UnitsInStock) AS CurrentStockValue, 
+	   ((UnitsOnOrder + UnitsInStock) * UnitPrice) AS FutureStockValue 
+FROM dbo.Products
+ORDER BY FutureStockValue DESC;
+
+--Second way:--
+SELECT ProductID, ProductName, UnitsOnOrder, 
+	   (UnitPrice * UnitsInStock) AS CurrentStockValue, 
+	   ((UnitsOnOrder + UnitsInStock) * UnitPrice) AS FutureStockValue 
+FROM dbo.Products
+ORDER BY ((UnitsOnOrder + UnitsInStock) * UnitPrice) DESC;
+
+```
+
+```sql
+--Exercise 3: SELECT DISTINCT: --
+
+--Task 1: Create a report that selects the customer's countries: --
+
+USE Northwind;
+
+SELECT Country 
+FROM dbo.Customers;
+
+
+--Task 2: Select distinct rows: --
+
+SELECT DISTINCT Country 
+FROM dbo.Customers;
+
+```
+
+```sql
+--Exercise 4: SELECT TOP: --
+
+--Task 1: Create a report of the top ten most expensive products: --
+
+USE Northwind;
+
+SELECT TOP 10 
+	ProductID, ProductName, UnitPrice
+FROM dbo.Products
+ORDER BY UnitPrice DESC;
+
+```
+
+```sql
+--Exercise 5: More TOPping:--
+
+--Task 1: Modify Exercise 2 (Sorting on calculated columns), Task 2 to selecy only top 10 products based on current stock value
+
+SELECT TOP 10 
+	   ProductID, ProductName, UnitsOnOrder, 
+	   (UnitPrice * UnitsInStock) AS CurrentStockValue, 
+	   ((UnitsOnOrder + UnitsInStock) * UnitPrice) AS FutureStockValue 
+FROM dbo.Products
+ORDER BY CurrentStockValue DESC;
 
 ```
 
@@ -410,4 +520,96 @@ SELECT * FROM dbo.Workers;
 SET IDENTITY_INSERT dbo.workers on 
 
 ```
+---
+**Lab 9: Table Manipulation:**
 
+```sql
+--Exercise 1: String Functions: --
+
+--Task 1: Add a new database: --
+
+CREATE DATABASE NewDB
+GO
+
+USE NewDB
+GO
+
+--Task 2: Add a table: --
+CREATE TABLE dbo.Payments(
+RowID          INT           IDENTITY(1,1) PRIMARY KEY,
+PaymentRef     INT,
+CustomerRef    VARCHAR(10),
+PaymentDT      DATETIME,
+PaymentAmount  MONEY
+)
+GO
+
+--Table currently has no values except the columns: --
+SELECT * FROM dbo.Payments
+GO
+
+--Task 3: Add data to the new table: --
+INSERT INTO dbo.Payments VALUES (1001,'CR001','2019-10-01T04:50:00',900.00)
+INSERT INTO dbo.Payments VALUES (1002,'CR002','2019-10-01T07:13:00',234.00)
+INSERT INTO dbo.Payments VALUES (1003,'CR003','2019-10-01T08:59:00',352.00)
+INSERT INTO dbo.Payments VALUES (1004,'CR001','2019/10/01 09:12:00',617.00)
+INSERT INTO dbo.Payments VALUES (1005,'CR004','2019-10-01T09:16:00',778.00)
+INSERT INTO dbo.Payments VALUES (0,'ERROR','1753-01-01T00:00:00',0.00)
+GO
+
+--Summarising rows of data by payment date: --
+SELECT PaymentDT , count(*) AS NumberRows,
+sum(PaymentAmount) AS TotalPaid 
+FROM dbo.Payments
+GROUP BY PaymentDT
+GO --The query does not summarize by date due to the column holding the time as well. --
+
+
+--Exercise 2: Adding columns: --
+
+--Task 1: Create a query that filters by year: --
+
+ALTER TABLE dbo.Payments
+ADD PaymentDate DATE
+GO
+
+SELECT * FROM dbo.Payments
+GO --Note that the value for PaymentDate is currently null--
+
+--Update the rows to fill the PaymentDate Column calculated from the Payment DT column: --
+UPDATE dbo.Payments
+SET PaymentDate = CONVERT(DATE, PaymentDT)
+GO
+
+--Review the PaymentDate column: --
+
+SELECT * FROM dbo.Payments
+GO
+SELECT PaymentDate , count(*) AS NumberRows, 
+sum(PaymentAmount) AS TotalPaid 
+FROM dbo.Payments
+GROUP BY PaymentDate
+GO
+
+--Exercise 3: Cleaning the data: --
+
+--Task 1: Remove the rows with errors: --
+
+DELETE FROM dbo.Payments
+WHERE PaymentRef = 0
+GO
+
+SELECT * FROM dbo.Payments
+GO
+SELECT PaymentDate , count(*) AS NumberRows, 
+sum(PaymentAmount) AS TotalPaid 
+FROM dbo.Payments
+GROUP BY PaymentDate
+GO
+
+--Task 2: Removing the table: --
+
+DROP TABLE dbo.Payments
+GO
+
+```
