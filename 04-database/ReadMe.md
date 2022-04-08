@@ -448,6 +448,155 @@ ORDER BY CurrentStockValue DESC;
 
 ## Grouping and Aggregations
 ---
+**Grouping and Aggregations: In Class Example:**
+
+```sql
+--Grouping and aggregation:--
+
+USE Northwind;
+
+--Aggregates:--
+
+SELECT * FROM dbo.Orders;
+
+SELECT SUM(Freight) AS F, AVG(COALESCE(Freight, 0)) as AvgF,
+	   MIN(Freight) as MinF, MAX(Freight) as MaxF
+FROM dbo.Orders; 
+
+SELECT COUNT(*) FROM dbo.Employees;
+
+SELECT COUNT(Region) FROM dbo.Employees;
+
+SELECT * FROM dbo.Customers;
+
+SELECT COUNT(Country) FROM dbo.Customers; --Comes back with number in the country column
+
+--To know how many countries: 
+SELECT COUNT(DISTINCT Country) FROM dbo.Customers;
+
+SELECT MIN(Companyname), MAX(Companyname)
+FROM dbo.Customers; --Gives first and last alphabetically
+
+SELECT MIN(Orderdate), MAX(Orderdate)
+FROM dbo.Orders;  --Gives earliest and latest order
+
+--GROUP BY:--
+
+--Sum up these aggregates for each of the customers (sub total):--
+--GROUP the tables and for each of these calculate these aggregates:--
+
+SELECT CustomerId, SUM(Freight) AS F, AVG(COALESCE(Freight, 0)) as AvgF,
+	   MIN(Freight) as MinF, MAX(Freight) as MaxF
+FROM dbo.Orders
+GROUP BY CustomerID; --For each customerID, these are thr aggregates
+
+
+--ERROR WAY: Calculate for where freight is over 1000:--
+SELECT CustomerId, SUM(Freight) AS F, AVG(COALESCE(Freight, 0)) as AvgF,
+	   MIN(Freight) as MinF, MAX(Freight) as MaxF
+FROM dbo.Orders
+WHERE SUM(Freight) >= 1000 --Results in error as you can't include sum in a where
+GROUP BY CustomerID
+
+
+--CORRECT WAY: Calculate for where freight is over 1000:--
+SELECT CustomerId, SUM(Freight) AS F, AVG(COALESCE(Freight, 0)) as AvgF,
+	   MIN(Freight) as MinF, MAX(Freight) as MaxF
+FROM dbo.Orders
+GROUP BY CustomerID
+HAVING SUM(Freight) >= 1000; --Filter with an aggregate, need to use HAVING
+
+
+--Using HAVING and WHERE:--
+SELECT CustomerId, SUM(Freight) AS F, AVG(COALESCE(Freight, 0)) as AvgF,
+	   MIN(Freight) as MinF, MAX(Freight) as MaxF
+FROM dbo.Orders
+WHERE CustomerID like 'b%'
+GROUP BY CustomerID
+HAVING SUM(Freight) >= 1000; 
+
+```
+
+**Lab 4: Grouping and Aggregating:**
+
+```sql
+--Grouping and Aggregating:--
+
+--Exercise 1: Basic Aggregates:--
+
+--Task 1: Create a report that selects a count of row:--
+
+USE Northwind;
+SELECT COUNT(*) AS NumberOfOrders
+FROM dbo.Orders;
+
+
+--Task 2: Write a report that selects maximums and minimums:--
+SELECT COUNT(*) AS NumberOfOrders, 
+MIN(OrderDate) AS EarliestOrder, 
+MAX(OrderDate) AS LatestOrder
+FROM dbo.Orders;
+
+
+--Task 3: Write a report that selects aggregates for one employee: --
+SELECT COUNT(*) AS NumberOfOrders, 
+MIN(OrderDate) AS EarliestOrder, 
+MAX(OrderDate) AS LatestOrder
+FROM dbo.Orders
+WHERE EmployeeID = 1;
+
+```
+
+```sql
+--Exercise 2: Grouping aggregates: --
+
+--Task 1: Create a query that counts orders: --
+USE Northwind;
+
+SELECT COUNT(OrderID) AS NumberOfOrders
+FROM dbo.Orders;
+
+
+--Task 2: Write a report that groups based on customer's ID: --
+SELECT CustomerID, COUNT(OrderID) AS NumberOfOrders
+FROM dbo.Orders
+GROUP BY CustomerID;
+
+
+--Task 3: Write a repoty that sorts otder counts in descending order: --
+SELECT CustomerID, COUNT(OrderID) AS NumberOfOrders
+FROM dbo.Orders
+GROUP BY CustomerID
+ORDER BY NumberOfOrders DESC;
+
+```
+
+```sql
+--Exercise 3: Aggregating calculated values and filtering aggregates: --
+
+--Task 1: Create a report that sums quantities of products sold: --
+USE Northwind;
+
+SELECT ProductID, SUM(Quantity) AS TotalSold
+FROM dbo.[Order Details]
+GROUP BY ProductID;
+
+
+--Task 2: Create a report that sums a calculation:--
+SELECT ProductID, SUM(Quantity * UnitPrice) AS TotalValue
+FROM dbo.[Order Details]
+GROUP BY ProductID
+ORDER BY TotalValue DESC;
+
+
+--Task 3: Create a report that filters aggregate values: --
+SELECT ProductID, SUM(Quantity * UnitPrice) AS TotalValue
+FROM dbo.[Order Details]
+GROUP BY ProductID
+HAVING SUM(Quantity * UnitPrice) <= 5000 --Column TotalValue doesn't exist yet for ORDER BY so need to use calculation for it
+ORDER BY TotalValue DESC;
+
+```
 
 ## Using Multiple Tables
 ---
