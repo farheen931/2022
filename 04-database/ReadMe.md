@@ -762,3 +762,302 @@ DROP TABLE dbo.Payments
 GO
 
 ```
+
+```sql
+USE Northwind;
+
+--Inner join: Only customers that have orders: --
+SELECT CompanyName, OrderDate
+FROM dbo.Customers INNER JOIN dbo.Orders
+ON dBO.Customers.CustomerID = dbo.Orders.CustomerID
+
+--Use alias: Gives 830 customers --
+SELECT C.CompanyName, O.OrderDate
+FROM dbo.Customers as C INNER JOIN dbo.Orders as O
+ON C.CustomerID = O.CustomerID
+
+--Left outer join: Gives 832 customers--
+SELECT C.CompanyName, O.OrderDate
+FROM dbo.Customers as C LEFT OUTER JOIN dbo.Orders as O
+ON C.CustomerID = O.CustomerID
+
+--Right outer join: Gives 830 orders--
+SELECT C.CompanyName, O.OrderDate
+FROM dbo.Customers as C RIGHT OUTER JOIN dbo.Orders as O
+ON C.CustomerID = O.CustomerID
+
+--Full outer join: Gives 832 orders--
+SELECT C.CompanyName, O.OrderDate
+FROM dbo.Customers as C FULL JOIN dbo.Orders as O
+ON C.CustomerID = O.CustomerID
+
+SELECT * FROM dbo.Customers; --91 ROWS
+SELECT * FROM dbo.Orders; -- 830 ROWS
+
+--Cross join OR Cartesian product: Gives 91 * 830 = 75,530 ROWS --
+SELECT C.CompanyName, O.OrderDate
+FROM dbo.Customers as C CROSS JOIN dbo.Orders as O
+
+
+--More than two tables:--
+SELECT P.ProductName, C.CompanyName, O.OrderDate, OD.Quantity, OD.UnitPrice
+FROM dbo.Customers as C LEFT OUTER JOIN dbo.Orders as O
+ON C.CustomerID = O.CustomerID
+						LEFT OUTER JOIN dbo.[Order Details] as OD
+ON O.OrderID = OD.OrderID
+						LEFT OUTER JOIN dbo.Products as P
+ON OD.ProductID = P.ProductID;
+
+
+--Self join: Tables referring to themselves --
+SELECT * FROM dbo.Employees;
+
+SELECT E.FirstName as Employee, M.FirstName as Manager
+FROM dbo.Employees as E INNER JOIN dbo.Employees as M -- Doesn't show Andrew as he doesn't have manager (null) so do left outer join
+ON E.ReportsTo = M.EmployeeID
+
+SELECT E.FirstName as Employee, M.FirstName as Manager
+FROM dbo.Employees as E LEFT OUTER JOIN dbo.Employees as M -- Now shows Andrew
+ON E.ReportsTo = M.EmployeeID
+
+
+
+```
+
+Union:
+
+```sql
+--Union, Except and Intersect:--
+USE Northwind;
+
+--Union: --
+SELECT CompanyName AS Name, City, Phone FROM dbo.Customers
+UNION
+SELECT CompanyName, City, Phone FROM dbo.Suppliers
+UNION
+SELECT LastName, City, HomePhone FROM dbo.Employees;
+
+
+SELECT CompanyName, City, Phone, 'Customer' AS Type FROM dbo.Customers
+UNION ALL 
+SELECT CompanyName, City, Phone, 'Supplier' FROM dbo.Suppliers
+UNION ALL
+SELECT LastName, City, HomePhone, 'Employees' FROM dbo.Employees;
+-- Doesn't sort them so employees are all the bottom
+-- Union all shows duplicates between the tables
+
+
+--Intersect:--
+SELECT City, Country FROM dbo.Customers
+INTERSECT
+SELECT City, Country FROM dbo.Suppliers 
+-- Cities in both customers and suppliers 
+-- Can be rewritten as an inner join
+
+SELECT DISTINCT C.City, C.Country
+FROM dbo.Customers as C INNER JOIN dbo.Suppliers as S
+ON C.City = S.City and C.Country = S.Country; -- Common between them
+
+
+--Except: List of cities in customers table that isn't in suppliers --
+SELECT City from dbo.Customers 
+EXCEPT
+Select City from dbo.Suppliers
+
+-
+SELECT DISTINCT C.City
+FROM dbo.Customers AS C LEFT JOIN dbo.Suppliers AS S
+ON C.City = S.City and C.Country = S.Country
+WHERE S.City is NULL
+```
+
+EXERCISES: 
+```sql
+--Exercise 1: Join Fundamentals: --
+
+--Task 1: Create a report that selects rows from the Customers and Orders tables: --
+USE Northwind;
+
+SELECT C.CustomerID, CompanyName, ContactName, City, O.OrderID, O.OrderDate 
+FROM dbo.Customers AS C 
+INNER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID;
+
+
+--Task 2: Write a query that filters and sorts the results: --
+SELECT C.CustomerID, CompanyName, ContactName, City, O.OrderID, O.OrderDate 
+FROM dbo.Customers AS C 
+INNER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+WHERE C.Country = 'UK'
+ORDER BY CompanyName, OrderDate;
+
+
+--Task 3: Write a query that includes rows from more than two tables: --
+SELECT C.CustomerID, CompanyName, ContactName, City, O.OrderID, O.OrderDate, 
+OD.ProductID, OD.Quantity
+FROM dbo.Customers AS C 
+INNER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+INNER JOIN dbo.[Order Details] AS OD
+ON O.OrderID = OD.OrderID
+WHERE C.Country = 'UK'
+ORDER BY CompanyName, OrderDate;
+
+--Join products table: --
+SELECT C.CustomerID, C.CompanyName, C.ContactName, C.City, O.OrderID, O.OrderDate, 
+OD.ProductID, OD.Quantity, P.ProductID, P.ProductName
+FROM dbo.Customers AS C 
+INNER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+INNER JOIN dbo.[Order Details] AS OD
+ON O.OrderID = OD.OrderID
+INNER JOIN dbo.Products AS P
+ON OD.ProductID = P.ProductID
+WHERE C.Country = 'UK'
+ORDER BY C.CompanyName, O.OrderDate;
+
+```
+
+```sql
+--Exercise 2: Investigate outer joins: --
+
+--Task 1: Create a query that counts customers: --
+USE Northwind;
+
+SELECT COUNT(*) FROM dbo.Customers;
+
+--Task 2: Write a report that groups orders based on the customer's name: --
+USE Northwind;
+
+SELECT C.CompanyName, COUNT(O.OrderID) AS NumOrders
+FROM dbo.Customers AS C
+INNER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+GROUP BY C.CompanyName
+ORDER BY NumOrders;
+
+
+--Task 3: Write a report that uses left and right outer joins--
+SELECT C.CompanyName, 
+COUNT(O.OrderID) AS NumOrders, 
+MIN(O.OrderDate) AS MinDate
+FROM dbo.Customers AS C
+LEFT OUTER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+GROUP BY C.CompanyName
+ORDER BY NumOrders;
+
+SELECT C.CompanyName, COUNT(O.OrderID) AS NumOrders
+FROM dbo.Customers AS C
+RIGHT OUTER JOIN dbo.Orders AS O
+ON C.CustomerID = O.CustomerID
+GROUP BY C.CompanyName
+ORDER BY NumOrders;
+
+```
+```sql
+
+-- Exercise 3: Create a telephone directory: --
+
+--Task 1: Create a report that retrieves Customer contact details: --
+USE Northwind;
+
+SELECT CompanyName, ContactName, Phone FROM dbo.Customers
+
+--Task 2: Create a report that retrieves Supplier contact details: --
+USE Northwind;
+
+SELECT CompanyName, ContactName, Phone FROM dbo.Customers
+
+SELECT CompanyName, ContactName, Phone FROM dbo.Suppliers
+
+
+--Task 3: Create a report that retrieves Employee Contact details: --
+
+SELECT FirstName + ' ' + LastName, Extension FROM dbo.Employees
+
+
+--Task 4: Combine the results using the UNION Operator: --
+SELECT CompanyName, ContactName, Phone FROM dbo.Customers
+UNION ALL 
+SELECT CompanyName, ContactName, Phone FROM dbo.Suppliers
+UNION ALL
+SELECT 'Northwind Traders', FirstName + ' ' + LastName, Extension FROM dbo.Employees
+
+```
+
+SUBQUERIES:
+```sql
+
+--Subqueries:--
+
+USE Northwind;
+
+--WON'T WORK:--
+SELECT * FROM dbo.Orders
+HAVING Freight > AVG(Freight);
+
+
+--WILL WORK BUT WILL ALWAYS HAVE TO RUN FIRST QUERY WHEN UPDATED:--
+SELECT AVG(Freight) FROM dbo.Orders; --Calculate freight avg first--
+
+SELECT * FROM dbo.Orders
+WHERE Freight > 78.2442
+
+--Subquery/Nested query (self contained):--
+SELECT * FROM dbo.Orders
+WHERE Freight > (SELECT AVG(Freight) FROM dbo.Orders);
+
+--Correlated: Inner query relies on outer query --
+SELECT * FROM dbo.Categories
+SELECT * FROM dbo.Products
+
+--How many products in each category? --
+SELECT COUNT(*) FROM dbo.Products
+WHERE CategoryID = 1; -- Will have to keep changing the categoryID
+
+--One query to calculate the products in each category:
+-- CategoryID  CategoryName  numProds:
+
+SELECT C.CategoryID, C.CategoryName, 
+		(
+			SELECT COUNT(P.ProductID) FROM dbo.Products as P
+			WHERE P.CategoryID = C.CategoryID --Filter Categoryid from Category table with CategoryId from Products table
+		) AS numProds
+FROM dbo.Categories as C
+
+--Rewritten as a join: Inner join:--
+
+SELECT  C.CategoryID, C.CategoryName, COUNT(P.ProductID) AS NumProds
+FROM dbo.Categories AS C INNER JOIN dbo.Products AS P
+ON P.CategoryID = C.CategoryID
+GROUP BY C.CategoryID, C.CategoryName;
+
+---
+INSERT INTO dbo.Categories(CategoryName,Description)
+VALUES ('Various', 'Other Food');
+
+```
+
+TRANSACTIONS:
+
+```sql
+USE Northwind;
+
+CREATE TABLE tab1
+(
+	a INT CHECK (a < 5) --Can only have less than 5
+);
+
+SET XACT_ABORT ON;
+BEGIN TRAN
+	INSERT INTO tab1 VALUES(1);
+	INSERT INTO tab1 VALUES(3);
+	INSERT INTO tab1 VALUES(10); --Error
+COMMIT TRAN
+
+SELECT * FROM tab1;
+
+TRUNCATE table tab1;
+```
