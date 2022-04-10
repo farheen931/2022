@@ -2,15 +2,63 @@ Avanade Velocity 2022
 
 # SQL Training
 
-## Introduction to SQL
+## **Introduction to SQL**
 ---
-Text info
+SQL stands for **Structural Query Language** which is a standard language for accessing data in databases and is controlled by the American National Standards Institute (ANSI).
+
+Microsoft's implentation of the standard is called Transact-SQL.
+
+### Different types of databases ### 
+
+- **Transactional:** Online Transactional Processing (OLTP) is used for everyday occurences and changes, such as sales. They are often high volume, with data processed to be accessible very quickly.
+
+- **Analytical:** Online Analytical Processing (OLAP) is used for reading and analysis. Provides answers to complex queries.
+
+- **Relational:** Many tables with relationships between them, so provides access to data points related to each other (with a foreign key).
+
+- **NoSQL:** Stands for Node SQL, this purpose is built for specific data models (Not in tables, looks like JSON format)
+
+When starting to write the queries, you should specify which database is going to be used by writing the **USE** statement. 
+
+When running queries, parse button checks the syntax is correct. 
+
+You can double click the error message to find where the error is
+
+### The order of statements are: ###
+
+- SELECT
+- FROM
+- WHERE
+- GROUP BY
+- HAVING
+- ORDER BY
+
+### Adding comments 
+
+- **Single line** comments which is done by putting **--** before text.
+
+- **Multi line** comments which is done by putting **/***.
 
 ---
 
 ## Retreiving Data
 ---
-**Basic Select:**
+The SELECT starement is the basic of all queries in SQL.
+ 
+It **SELECTS** the pieces of information 
+**FROM** these places (tables)
+
+SELECT * means it selects all the columns from a table 
+
+You can also select particular list of columns which have to be separated by commas. 
+
+You can also use **expressions** in select lists, such as *arithmetic operators* and *string concatenation*
+
+You can use an alias using the term **AS** to rename the new columns that come out from the expressions 
+
+
+
+### **Basic Select:**
 
 ``` sql
 USE Northwind; 
@@ -62,6 +110,31 @@ SELECT FirstName + ' ' + LastName AS Fullname, Extension FROM dbo.Employees;
 
 ## Filtering Rows
 ---
+
+The **WHERE** clause tells SQL we want to limit the results a query returns. Without it, all rows in the table are returned.
+
+The **WHERE** clause goes after the **FROM**
+
+To reference a piece of data, put quotes around it (this is not needed for numeric data). Dates need quotes as well. 
+
+The **operators** used for the **WHERE** clause are:
+
+- **Comparison operators:** = < >
+
+- **Logical operators:** AND, OR, NOT
+(When doing OR and AND, it does the AND before the OR)
+
+- **"Special" operators:** BETWEEN, IN, LIKE
+
+The **IN** operator lets you specify the list of values which we want the expression to match (short hand version of **OR**)
+
+**NULL** is an unknown so any calculation involving a null will give you a null.
+
+Any row with an null uses a ' ' .
+
+isNULL requires two arguments 
+
+To filter based on a calculation, the calculated expression needs to be resued in the WHERE clause. The alias can't be used as it hasn't been created in that point of time.
 
 **Filtering rows: In class example:**
 
@@ -277,6 +350,21 @@ WHERE
 ## Sorting Rows
 ---
 
+Sorting is the last thing to happen to the results sets - after all the filtering, calculating and manipulating.
+
+- **ASC** = Ascending
+
+- **DESC** = Descending
+
+Can sort up to 16 columns in 1 **ORDER BY** clause using a comma separated list of column names 
+
+Can sort calculated values as well but don't have to duplicated the expression (can use the alias)
+
+**DISTINCT** is used when a list of unique values is required as it eliminates duplicates 
+
+**TOP** is bestly used with an ORDER BY clause as this is the only wa to indicate which rows are affected by TOP 
+
+
 **Sorting rows: In class example:**
 
 ```sql
@@ -449,6 +537,44 @@ ORDER BY CurrentStockValue DESC;
 
 ## Grouping and Aggregations
 ---
+
+Can ask SQL to perform mathematical operations over a set of records:
+
+- **COUNT( * )/ COUNT()** = Count everything or whatever is in the region (will ignore the null except COUNT(*))
+
+- **SUM** = Total of
+
+- **MAX/ MIN**
+
+- **AVG**
+
+Statistical Aggregations:
+
+- **STDEV**
+
+- **STDEVP**
+
+- **VAR**
+
+- **VARP**
+
+### **GROUP BY Clause**
+
+GROUP BY Clause groups all the different columns 
+
+It tells SQL we want to calculate the aggregate for each of the number of values in another column
+
+SQL will not let us include anything in the select list that isn’t an aggregate unless it is also in the GROUP BY clause.
+
+**GROUP BY** is needed when there are aggregates and it includes the part which isn't an aggregate
+
+### **HAVING Clause**
+
+To filter the grouped aggregates, a **HAVING** Clause is needed as **WHERE** won't work
+
+HAVING only works when there is a GROUP BY clause
+
+
 **Grouping and Aggregations: In Class Example:**
 
 ```sql
@@ -826,6 +952,9 @@ SELECT 'Northwind Traders', FirstName + ' ' + LastName, Extension FROM dbo.Emplo
 ---
 ## Subqueries 
 ---
+
+Can do up to 32 nested queries 
+
 **Subqueries: In Class Example:**
 ```sql
 --Subqueries:--
@@ -881,13 +1010,18 @@ VALUES ('Various', 'Other Food');
 
 ## Transactions and Isolation
 ---
+
+Truncate table means to empty the table but if you have **BEGIN TRAN** and **ROLLBACK TRAN** it allows you to roll back and brings the table back
+
+**XACT_ABORT** is used in case the transaction fails so whatever the error is, it will fall back 
+
 **Transactions: In Class Example, building upon Modifying Tables example:**
 
 ```sql
 ---Developing upon Modify Tables Example:--
 
 BEGIN TRAN
-	truncate table dbo.workers;
+	TRUNCATE TABLE dbo.workers;
 	DELETE dbo.Workers;
 
 	SELECT * FROM dbo.Workers;
@@ -927,6 +1061,39 @@ TRUNCATE table tab1;
 
 ## Modifying data
 ---
+
+- **CREATE** = Creates a new table, database etc. 
+
+- **INSERT** = Adding new rows
+
+- **UPDATE** = Modifying existing rows
+
+- **DELETE** Removing rows
+
+**WHERE** Clause supports these but it is good practice to check with **SELECT** Clause to check you're choosing the right values.
+
+### **CREATE**
+
+When creating, for the columns we don't want to supply a value for, which we want to increment itself by 1 this is used: **IDENTITY(1,1)**
+
+Char(4) means a fixed amount of 4 characters is written, e.g. ABCD or AB_ _
+
+Varchar(4) means up the amount of 4 characters e.g. ABCD OR AB
+
+nChar and nVarChar depends on the sets of characters used in SQL. It is supported by Unicode which contains every character set. 
+
+### **INSERT**
+
+Uses the syntax **INSERT INTO** *Table name (Column names)*, **VALUES** *(New values)*
+
+### **UPDATE**
+
+**UPDATE** *Table*, **SET** *Column 1 = Value 1*, **WHERE** *Column X = Value X*
+
+### **DELETE**
+
+**DELETE [FROM]** *Table*, **WHERE** ...
+
 **Creating tables and modifying them: In class example:**
 
 ```sql
@@ -978,13 +1145,13 @@ VALUES ('Kasra', 'Very helpful'); --Doesn't backfill--
 
 --Replacing id 4:--
 
-SET IDENTITY_INSERT dbo.workers on 
+SET IDENTITY_INSERT dbo.workers ON 
 INSERT INTO dbo.Workers(wid, fname, Info)
 VALUES (4, 'Boris', 'Funny hair'); 
 
 SELECT * FROM dbo.Workers;
 
-SET IDENTITY_INSERT dbo.workers on 
+SET IDENTITY_INSERT dbo.workers OFF 
 
 ```
 ---
