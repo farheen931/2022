@@ -157,9 +157,55 @@ d.Eyes = 2; //set
 Console.WriteLine(d.eyes); //get
 ```
 
-**Full property vs Auto Property:**
+---
+## **Fields**
+---
+Fields are a **part of a class** but variables are **part of the method** - they exist when instances exist
 
-**Full property** = When you want to set the value specifically
+It is advisable to use a **private field** as clients can still access the data through **getters/properties**
+
+---
+## **Full property vs Auto Property:**
+
+---
+
+- Properties allows you to have access to the data of an object
+
+- To do this, it has **getters** and **setters**
+
+- A private field can be used within the object and this is to store information, if required
+
+- Private is only visible in the class, for example you can have get as public but set as private so no one outside the class can set this property.
+
+**Full property** = When you want to set the value specifically#
+
+```c#
+//Short cut = propf + tab + tab
+public class Car {
+    private int speed 
+    public int Speed {
+        get {return speed;}
+        private set {speed = value}
+    }
+}
+
+```
+
+**Auto property** = Can store data but an additional field is not required for storage 
+
+```c#
+public class Car {
+    public int speed {
+        get; private set;
+    }
+}
+
+//prop + tab + tab: 
+public int MyProperty { get; set; }
+
+```
+
+- Can add an initialiser to this as well, this will be set as the default value provided nothing else is given
 
 ---
 
@@ -191,7 +237,26 @@ This cannot be changed from 2
 
 ---
 
-## **Parsing**
+## **Readonly variables**
+---
+- **Readonly** is similar to the **const** keyword
+
+- const requires a value immediately and convention is to write the variable in all capitals
+
+- When you don't know the value, make it a normal value and use readonly 
+
+- After it's set, you can't change it anymore 
+
+- For readonly, the value can be set immediately or **in a constructor**
+
+```c#
+public readonly decimal BONUS = 5.00M;
+
+```
+
+---
+
+## **Parsing & Casting**
 ---
 The parse method is a static method available in primitive data types that lets a string be parsed for a data type of the appropriate type:
 
@@ -206,13 +271,43 @@ int piNumber = int(decimal)
 
 ```
 
+**Casting** is used to change from one data type to another data type
+
+```c#
+long Width = 150;
+
+int Height = int(Height);
+
+```
+
+---
+
+## **String formatting**
+---
+There are different ways to format a string: 
+
+```c#
+//First way:
+
+Console.WriteLine($"Emp2 {emp1.FirstName} {emp1.LastName} salary is {emp1.Salary}" )
+
+//Second way:
+
+Console.WriteLine($"Emp2 salary is " + {emp1.Salary} )
+
+//Third way:
+
+Console.WriteLine(string.Format("Emp1 salary is {0}", emp1.Salary))
+
+```
+
 ---
 
 ## **Increments**
 ---
-**Post increment = a++** so addition won't happen until the next line
+**Post increment = a++** so addition won't happen until the next line - the increment happens *after* the next line has occurred
 
-**Pre increment = ++b** so addition has occured before it leaves the next line
+**Pre increment = ++b** so addition has occured before it leaves the next line 
 
 **+=** Adds value on the right side to whatever is on the left 
 
@@ -330,6 +425,56 @@ do {
 
 ```
 ---
+## **Short Circuit Evaluation**
+---
+This is the premise that if a part of the evaluation is already false, it doesn't need to check the other ones 
+
+**&&** and **||** are used for short circuit evaluation 
+
+### **&&**
+
+If the expression on the left hand side is **false**, this will end the evaluation so the expression on the **right** will not be evaluated
+
+### **||**
+
+If the expression on the right hand side is **true**, this will end the evaluation so the expression
+
+---
+
+## **Ternary Operators**
+---
+
+This format is used as a shorthand way of writing **if else** statements 
+
+The syntax for this is:
+
+**condition ? statement 1: statement2**
+
+An example is:
+
+```c#
+//If else method:
+
+string salutation1;
+if (gender==Gender.Male) {
+    salutation1 = "Mr";
+} else 
+{
+    salutation = "Mrs";
+}
+string str1 = $"Happy Birthday ";
+str1 += salutation1 + " President";
+Console.WriteLine(str1);
+
+
+//Ternary Expression method: 
+
+string salutation2 = (gender==Gender.Male) ? "Mr":"Mrs";
+string sr2 = $"Happy Birthday {salutation2} President";
+Console.WriteLine(str2);
+
+```
+---
 
 ## **Console examples**
 ---
@@ -345,9 +490,218 @@ string input = Console.readLine();
 
 ```
 ---
+## **Constructors**
+---
+
+- A constructor allows you to create a new instance of a class, therefore it allows you to create a new **object**
+
+- For parameters, you need to use the **this keyword**
+
+- C# has a compiler that provides a default constructor however for **overloaded** constructors, we need to add the default one
+
+- The constructor uses the name as the class
+
+- The shortcut for this is **ctor**
+
+- () is optional unless object initialisers are used and there are no construction parameters
+
+### **Employee constructor example**
+
+```c#
+class Employee {
+
+    private readonly string firstName;
+    private readonly string lastName;
+    private readonly int employeeId;
+
+//Constructor and its parameters:
+
+public Employee(string firstName, string lastName, int employeeId) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.employeeId = employeeId;
+    }
+}
+
+//With initialisers (mandatory)
+//ctor:
+
+Employee farheen = new Employee ("Farheen", "Rahim", 1);
+
+//Adding an optional field
+
+Employee farheen = new Employee ("Farheen", "Rahim", 1) {Address = "London" };
+
+```
+---
+## **Constructor Chaining**
+---
+- This is used to call one constructor from another constructor in the same class 
+
+- So as seen in the example below, the first constructor will call upon a constructor which has an int and the second constructor calls upon the constructor with a string and an int = Saves time
+
+- Often used when there are different options of what data needs to be supplied to an object
+
+```c#
+publc class Car {
+    public Car() : this(0) {}
+
+    public Car(int initialSpeed): this(initialSpeed, "BMW") {}
+
+    public Car(int initialSpeed, string make) {
+        speed = initialSpeed;
+        this.make = make;
+    }
+}
+
+```
+
+---
+## **Object initialisers**
+
+---
+- This calls the class, gives it an identifier and sets the values for it
+
+- So the object, p, can be initialised without calling the constructor explicitly
+
+```c#
+private class Person {
+    public string FirstName {get; set;}
+
+    public string LastName {get; set;}
+}
+
+//Two methods:
+
+//1:
+
+Person p = new Person();
+p.FirstName = "Farheen";
+p.LastName = "Rahim";
+
+//2: 
+
+Person p = new Person { FirstName = "Farheen" LastName = "Rahim"}
+
+```
+
+---
+
+## **Arrays**
+---
+- An **array** is a collection of items of the same data type 
+
+- They have a **fixed length** which means you cannot add anything to an array, it is fixed when created - **list** can
+
+```c#
+//Example:
+
+//Create the array:
+int [] arr1 = new int[5];
+
+//Initialise the array:
+int [] arr1 = {1,2,3,4,5}
+
+//Create and initalise in one line:
+int arr2 = new int [] {2,4,6,8,10}
+
+//Calling an array item: This means x will be 4
+int num = arr[3] 
+
+```
+
+- Arrays can also be used for *for each* loops to loop through the array 
+
+```c#
+int[] numbers = { 4, 5, 6, 1, 2, 3, -2, -1, 0 };
+foreach (int i in numbers)
+{
+    System.Console.Write("{0} ", i);
+}
+// Output: 4 5 6 1 2 3 -2 -1 0
+
+```
+---
+## **Value and Reference Types**
+---
+
+### **Value types**
+- This creates a space **in memory** based on the size of the data type
+
+- They exist for their data, not particularly for their methods
+
+- Defined via C# keyword **struct** 
+
+- They are **built in types**, like int, double
+
+- Thet are **automatically cloned** when they are assigned to another variable of the same type
+
+```c#
+int a = 10; //creates new space in stack and saves value of a as 10 in memory
+
+int b = a; // b is different from a, it is copied and saved in memory
+
+b = 20; // changes b, not a (not affected)
+
+//What is a? = 10
+//What is b? = 20
+
+```
+
+### **Reference types**
+
+- Behaviour of classes 
+
+- **Objects** are reference types 
+
+- Supports **inheritance**
+
+- Object's memory is handled by **Garbage Collector**
+
+- Examples include: Car, Button, Form, Page
+
+- Variable of a reference type needs to be **instantiated** before it can be accessed = Done using the **new keyword**
+
+```c#
+class Person {
+    public int x;
+}
 
 
+Person p1 = new Person (); // Creates a space in memory for p1
 
+p1.x = 10;
 
+Person p2 = p1; //Saying there is no need to create a new one, it is a reference for p1 so when you modify p1, you modify p2. p2 is an alliance for p1
 
+p2.x = 20;
 
+//What is p1.x? 20
+//What is p2.x? 20
+
+```
+
+---
+## **Garbage Collection**
+---
+- This is on the **heap** 
+
+- When you create something in memory, you need to delete it - this is where garbage collection comes in 
+
+- Object and reference types are atuomatic garbage collection
+
+- C# compiler deletes every unused item
+
+---
+## **The null Reference**
+---
+- Variable of reference types can be **null** 
+
+- The default 
+
+---
+## **The Elvis Operator ?.**
+---
+- 
+
+---
