@@ -697,11 +697,60 @@ p2.x = 20;
 ---
 - Variable of reference types can be **null** 
 
-- The default 
+- Check for null before calling methods or an object
 
+- The **default** value for a reference type is **null** 
+
+- If it is **locally declared** (inside a method body) then it
+is **un-initialised** like other local variables and needs to be **explicitly initialised**
+
+```c#
+//Variables of reference types can be null:
+
+public static Car FindPoolCar() {
+    Car theCar = null;
+    //code to locate the next car
+    return theCar;
+}
+
+//If variable did originally reference a different object, then old object is 'forgotten'
+
+//Can compare an object reference with null 
+
+Car car1 = QA.FindPoolCar();
+
+if (car1 != null) {
+    //Drive car away
+}
+else
+Console.WriteLine("No car available")
+
+```
 ---
 ## **The Elvis Operator ?.**
 ---
-- 
+- Can either do an if ! null or an elvis operator
+
+### **Before elvis:**
+
+```c#
+//Before elvis 
+
+HoundDog hd = GetHoundDog();
+if (hd != null) {
+    hd.CryAllTheTime();
+}
+
+// After elvis
+
+HoundDog hd = GetHoundDog();
+hd?.CryAllTheTime();
+
+static HoundDog GetHoundDog() {
+    return null; //new HoundDog();
+}
+
+```
+- If null then null, if not then dot
 
 ---
