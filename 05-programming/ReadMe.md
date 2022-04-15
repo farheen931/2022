@@ -752,5 +752,312 @@ static HoundDog GetHoundDog() {
 
 ```
 - If null then null, if not then dot
+---
+## **Coercian operator**
+---
+The following null check then it can be replaced with the coercian operator
+
+```c#
+private static Widget SetDiscount(Widget widget) {
+    if (widget is null) {
+        widget = new Widget ("Newly Created");
+    }
+    widget.Discount = 10M;
+    return widget
+}
+
+//Coercian operator:
+private static Widget SetDiscount(Widget widget) {
+    widget ?? = new Widget("Newly Created");
+    widget.Discount = 10M;
+    return widget
+}
+
+```
 
 ---
+## ** Nullable value types**
+---
+- Can't make a value type null, e.g. int z = null will throw an error
+
+- You can make it nullable by **adding a ?** so this means for some values you can say it is null or provide a value
+
+- Built in type to be nullable:
+
+```c#
+//Value types:
+double? diamond = null;
+
+public decimal? additionalBonus
+
+additionalBonus = 5.60M
+additionalBonus = null
+
+//Own types: 
+struct MyStruct {
+    int index;
+}
+MyStruct? x = null;
+```
+- **.NET Core** allows you to declate in the project file that it uses nullable reference types so it will warn you if you assign a null to a **string** but will allow you to assign it to a **string?**
+
+```c#
+<Nullable> Enable </Nullable>
+```
+- Easier to trace an error
+
+---
+## **Passing parameters by Value and by Reference**
+
+---
+
+- **Method parameters** are normally a *copy* of the argument so for a **value type**, the **value** is copied and for a **reference type**, a **pointer** is copied
+
+- When you want to modify a variable you ask for, need to use pass by ref 
+
+- With a reference type, don't need to use ref
+
+```c#
+private static void SwapByRef(ref int a, ref int b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+
+    Console.WriteLine($"Inside SwapByRef, a is {a} and b is {b}");
+
+static void Main(string[] args) {
+    int a = 10;
+    int b = 20;
+
+    Console.WriteLine($"Before SwapByVal, a is {a} and b is {b}");
+
+    SwapByVal(a, b);
+
+    Console.WriteLine($"After SwapByVal, a is {a} and b is {b}");
+
+    Console.WriteLine($"Before SwapByRef, a is {a} and b is {b}");
+
+    SwapByRef(ref a, ref b);
+
+    Console.WriteLine($"After SwapByRef, a is {a} and b is {b}");
+  }  
+}
+
+```
+
+---
+## **Static**
+---
+- By default, the project needs to have a **main method** as the compiler needs to know where to start 
+
+- Can only have **one** static void main method
+
+- Any file without a class is a main method
+
+- A **static class** cannot be instantiated, keyword static **seals** the class, so it cannot be derived from 
+
+- Static class has **only static members**, *no* instance methods, properties or fields
+
+```c#
+//Instance method:
+
+class Program 
+{
+    static void Main(string[] args)
+    {
+        Console console = new Console();
+        console.WriteLine("Hello World")
+    }
+}
+
+class Console {
+    public void WriteLine(string str) { }
+}
+
+//Static method:
+
+class Program 
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Hello World")
+    }
+}
+
+class Console {
+    public static void WriteLine(string str) { }
+}
+```
+
+
+- **Using static** to reference your namespace = creates a **shortcut** for the namespace you're referring to
+
+```c#
+//Using Maths.Abs
+
+static void Main(string[] args) {
+    int i = -42;
+    int j = -99;
+    int k = Maths.Abs(Maths.Max(i,j));
+}
+
+//Using static for Maths: Operates on a class rather than a namespace
+
+using static System.Math;
+
+class Program {
+
+static void Main(string[] args) 
+{
+    int i = -42;
+    int j = -99;
+    int k = Abs(Maths.Max(i,j));
+}
+}
+
+```
+
+---
+## **Enumerated types**
+---
+Enums **group** related constants together in a single definition 
+
+When a new enum is defined, a **set of identifiers** needs to be **enclosed in braces** to indicate allowed values for this enum type
+
+- Constants **start at 0** and increase in a **step size of 1** 
+
+- This creates a **constant list of values**
+
+- This is a **user-defined value type**
+
+```c#
+public enum Status {
+    Active, 
+    Retired,
+    MaternityLeave,
+    GardeningLeave
+}
+
+public static voic EmployeeStatus(Status st) {
+    switch (st) {
+        case Status.Active;
+        break;
+    }
+}
+
+```
+
+### Enum vs Class
+
+- Enum has less code compared to writing logic in a class
+
+- Group things together you will constantly use 
+
+- Can put outside a class
+
+### Difference between String and string
+
+- String is an actual class but string was created to look the same as other value types due to their lower case 
+
+
+---
+## **Extension Methods**
+---
+- xx
+---
+## **Partial classes**
+---
+- It is not possible to have 2 classes with the same namespace and name 
+
+- Can split the classes and separate them. Partial is used to merge the classes together at run time
+
+- All files need to be in the same project
+
+```c#
+public partial class Form1 {
+    ////
+}
+```
+
+---
+## **typeof operator**
+---
+- This is used for a method to know the type of an object
+
+```c#
+Dog d = new Dog();
+
+XmlSerializer ser = new XmlSerializer(typeof(Dog))
+```
+---
+## **nameof operator**
+---
+```c#
+class Dog {
+    bool isChipped;
+    public bool IsChipper {
+        get {
+            return isChipped;
+        }
+        set {
+            isChipped = value;
+            //OnProperTyChanged("IsChipped")
+            OnPropertyChanged(nameof(IsChipped));
+        }
+    }
+
+    void OnPropertyChanged(string name) {
+
+    }
+}
+
+```
+---
+## **Expressing Commonality**
+---
+### **Is a Type Of (Inheritance)**
+- hello
+
+### **Can Do (Interface)**
+- hello
+
+### **Generic Collections**
+- hello
+
+### **Pointing to Code (Delegate)**
+- hello
+
+---
+## **Generics** 
+---
+### **Generic Collections**
+- hello
+
+### **Lazy Instantiation**
+- hello
+
+### **Indexer**
+- hello
+---
+## **Inheritance**
+---
+### **Base and Derived Classes**
+- hello
+
+### **Inheritance Hierarchy**
+- hello
+
+### **Specifying the Base Class**
+- hello
+
+### **Derived constructors**
+- hello
+
+### **Polymorphism**
+- hello
+---
+
+
+
+
