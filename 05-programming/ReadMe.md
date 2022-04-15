@@ -960,11 +960,91 @@ public static voic EmployeeStatus(Status st) {
 
 - String is an actual class but string was created to look the same as other value types due to their lower case 
 
+### Struct vs Class
+
+- When class doesn't work, use **Struct** which works due to it being a **value type** so it takes a copy
+
+- A **class** is a **reference type**, a **struct** is a **value type** 
+
+```C#
+//For example: 
+
+Latlon Bristol = London;
+
+//When doing class = Bristol is an alliance to London so whatever you do to London, you do to Bristol 
+
+//With struct, London remains the same and Bristol changes 
+```
+- So when using a class, **1 object is stored in memory** because Bristol is just holding a reference to London 
+
+- Any changes Bristol affects London
+
+- So when using a struct, it's like a **copy and paste** so changes **won't** affect each other as a reference 
+
+### Tryparse
+
+```C#
+//This won't work as the data types don't match up: 
+
+string testNum = "56a";
+int num = testNum;
+
+//Therefore a parse needs to be used but it is not a number so this will also break:
+
+int num = int.Parse(testNum);
+
+//So a tryparse can be used:
+
+string testNum = "56a"
+int num = 0;
+
+if(int.Tryparse(testNum, out num)) {
+    Console.WriteLine("A number")
+} else {
+    Console.WriteLine("Not a number")
+}
+
+//This means if they are both numbers, it will work and if not it will catch this error
+
+```
 
 ---
 ## **Extension Methods**
 ---
-- xx
+- This enables you to **"add"** methods to **existing types** without creating a new derived type = **adds a new method to a class**
+
+- Enables a **type's functionality** to be extended
+
+- Extension methods are indicated by the **this modifier** which has to be applied to the **first parameter** of the extension method
+
+- They are a defined as **static** methods in **static classes**
+
+- The **first parameter defines the type** that the method "extends" 
+
+- Parameter type is preceded by **this modifier**
+
+```c#
+public static class StringUtils {
+    public static int WordCount(this string theString) 
+    {return theString.Split(' ' ).Count();}
+}
+
+string s = "Hello World"
+string.WordCount
+
+```
+
+```c#
+//Employee to have a method called Sum which returns age + 5
+
+public class MyExtensions {
+    public static int Sum(this Employee emp) {
+        return emp.Age + 5;
+    }
+}
+
+```
+
 ---
 ## **Partial classes**
 ---
@@ -1017,45 +1097,353 @@ class Dog {
 ## **Expressing Commonality**
 ---
 ### **Is a Type Of (Inheritance)**
-- hello
+- When you have a **superclass/base class** and program by difference in the **subclasses**, e.g. Mammal superclass and Dog/Cat subclass
 
 ### **Can Do (Interface)**
-- hello
+- When two classes, like invoice and log, have a commonality (such as being both Printable) so this is **interface**
 
 ### **Generic Collections**
-- hello
+- Create a collection of certain things, such as only dogs or only cats 
+
+```c#
+//e.g. Can only accept these values: 
+
+List<Dog>, List<Cat>, List<Invoice>
+
+```
 
 ### **Pointing to Code (Delegate)**
-- hello
+
+- Case Study: Create a logic that can save in any/every database 
+**= Not possible**
+
+- Solution: Ask developer to write the logic to save the database when they call my method and I will run their logic for them 
+
+```c#
+
+SaveIntoAllDatabase(GiveMeYourLogic) {
+    ...
+    GiveMeYourLogic();
+}
+
+```
+
+- So for example, imagine a process, like **nested while loops**: 
+
+```c#
+while(true){
+    while(true) {
+        bool result = CallOutToYourCode(value1, value2)
+    }
+}
+
+```
+
+- Within this code, you want to call out to your code, **passing in 2 values and returning a boolean**
+= *Must* have the correct signature of this double parameter and return bool type
+**= Delegate**
 
 ---
 ## **Generics** 
 ---
+
+### **Runtime vs Compile time error**
+
+- **Compile time error =** Can't run the code so will need to fix the errors before running and you want to be able to see these errors
+
+- **Runtime error=** An error whilst running the application (have to consistently test you program with many test cases to avoid this)
+
 ### **Generic Collections**
-- hello
+**List**
+
+- This is like having a task list, so **new tasks** can be added in any order and removed 
+
+- This is a **list of values**
+
+**Using List < T >**
+
+- In the example, there are a list of strings used to store the name of cities
+
+- A **list initialiser** syntax is used to create the original list 
+
+- With **List<> class**, you can Add a value to the end, Insert at a specific index or remove a value
+
+```c#
+//Using List<T>
+
+List<string> olympicCities = new List(string) () {
+    "Sydney", "Athens", "Beijing", "London"
+};
+
+olympicCities.Add("Rio"); //Adds to the end 
+string city = olympicCities[2]
+olympicCities.Insert(1, "Bognor") // Inserts at specific index
+
+```
+
+**Dictionary**
+
+- Find the key in the book an retrieve its value 
+
+- A list of **key-value pairs** (the word is the 'key', the definition is the 'value' which is the thing the key points to)
+
+**Using Dictionary < TKey, TValue >**
+
+- In this example, we are interested in the **name** of cities rather than the order
+
+- From the name, we want to **access the CityInfo** so a Dictionary is used
+
+- Can access an entry in the cities dictionary via its **key** (which is a **string** that is being **passed to the indexer**(square brackets))
+
+- Dictionary has two type parameters, one for the **keys** and one for the **values**
+
+```C#
+//Using Dictionary<TKey, TValue>
+
+Dictionary<string, CityInfo> cities = new Dictionary<string, CityInfo()> {
+    ["Sydney"] = new CityInfo() {Population = 3641421},
+    ["Bognor"] = new CityInfo() {Population = 0}
+}; //This is how you initialise a dictionary
+
+CityInfo ci = cities["Bognor"]; //Cities is indexed by name, not number
+
+foreach (KeyValuePair<string, CityInfo> kvp in cities) {
+    string key = kvp.Key;
+    CityInfo ci2 = kvp.Value;
+}
+
+```
+
+### **Generic collections**
+
+- **Stack** provides *Last In First Out* semantics 
+
+- **Queue**provides *First In First Out* semantics 
+
+- **SortedSet** *sorts values* and ignores duplicates 
+
+- **SortedList<TKey, TValue>** uses *less memory* than SortedDictionary
+
+- **SortedDictionary<TKey, TValue>** has *faster insertion* and removal operations for unsorted data
 
 ### **Lazy Instantiation**
-- hello
+- Only during the first **'get'** of them items, **instantiation** occurs 
+
+- Used so that you don't commit until the collection is actually needed 
+
+- Container class like book title allows some properties to be packaged 
+
+```C#
+//Lazy Instantiation
+
+class BookTitle {
+    public string Title {get; set;} 
+    public string ISBN {get; set;}
+
+    private List<BookCopy> items = null;
+    public List<BookCopy> Items{
+        get{
+            if (items == null) {
+                items = new List<BookCopy>();
+                // maybe populate from database
+            }
+            return items;
+        }
+    }
+}
+
+BookTitle title = new BookTitle();
+
+int count = title.Items.Count;
+//Lazy instatiation
+```
 
 ### **Indexer**
-- hello
+- Only use an indexer when it is obvious which the hidden collection is
+
+- Better to use a method or expose collection via a property
+
 ---
 ## **Inheritance**
 ---
+Concept in OOP and allows you to **define a new class (derived)** in terms of how that class **differs** from some other class (**base class**)
+
 ### **Base and Derived Classes**
-- hello
+- A class can **inherit features** of another class (*original = 'base'*, more general & *new = 'derived'*, more specific)
+
+- **Derived class =** Gets features from base class but can **override** behaviours of base class 
+
+- Derived class can **add new features** and has an **is-a** relationship with base class but can't remove features
+
+- Base class existing code can be **reused**
+
+**Example:**
+
+```c#
+Dog:
+	Name
+	Speaks(): virtual (allows for override for subclasses)
+
+Cat:
+	Name
+	Speaks()
+
+Lizard:
+	Name
+	Speaks()
+//Not convenient as they are repeating code and if something needs to change
+
+//Inheritance:
+
+Animal:
+	Name:
+	Speaks ()
+
+Dog: Animal
+	 Override Speaks()
+
+Cat: Animal
+
+Lizard: Animal 
+//Allows you to change the speak method for all the animals 
+
+```
+#### **Shape example**
+
+- Shape base class from which other classes are derived that would get the benefit to reuse the code from the base class
+
+- Derived types also need to **extend and modify base class funtionality** e.g. Own algorithm to calculate area of shape 
 
 ### **Inheritance Hierarchy**
-- hello
+- C# only supports single inheritance 
+
+- Any class that doesn't extend another class implicilty extends the System.Object Class 
+
+- Object class doesn't have a base class and is the root class so all members of the Object class is available to all classes (in particular ToString())
+
+- Single inheritance = Each class can only have one direct base class 
+
+- Multiple classes can be derived from a single base class 
 
 ### **Specifying the Base Class**
-- hello
+- To define a derived class, need to provide code for the things which are different to the base class 
+
+- Need to establish inhertiance relationship between derived and base class = Done by putting base class name after the class name 
+
+```C#
+//Base class: 
+
+public class Shape {
+    public Color Colour {get; set;}
+    public Point Position {get; set;}
+    //Other shape stuff
+}
+
+//Derived classes: 
+
+public class Polygon : Shape 
+{
+    public int NumberOfSide{get; set;}
+}
+
+public class Rectangle : Shape 
+{
+    //Rectangle-specific stuff
+}
+
+public class Ellipse : Shape 
+{
+    //Ellipse-specific stuff
+}
+
+public class Triangle : Shape 
+{
+    //Triangle-specific stuff
+}
+
+```
 
 ### **Derived constructors**
 - hello
 
 ### **Polymorphism**
 - hello
+
+### **Protected**
+- hello
+
+### **Access Modifiers**
+There are 5 access modifiers in C#
+
+| Modifier    | Description |
+| ----------- | ----------- |
+| public      | Potentially available anywhere        |
+| private | Only accessible to code within the same type       |
+| internal   | Accessible to any code within the same assembly (project)      |
+| protected  | Accessible to any type that inherits from the type     |
+| protected internal   | Accessible to any code that is either in the same assembly or inherits from the type     |
+
+### **Invoking Base Class Functionality**
+- hello
+
+### **Abstract Classes**
+- hello
+
+### **Casting**
+- hello
+
+### **The 'is' keyword**
+- If the runtime object is not an object of the derived class an **InvalidCastException** is thrown 
+
+- The *is* operator checks the type:
+
+```C#
+if (shape is Rectangle) {
+    double perimeter = ((Rectangle)shape).Perimeter;
+
+    //or
+
+    Rectangle r = (Rectangle)shape;
+    double perimeter = r.Perimeter
+}
+
+//Note that in this case, both shape is Shape and shape is object are also true. 
+
+```
+- The **is operator** checks to see if the object that is being referenced is of a specific type (or is derived from that specific type).
+
+- The is operator returns true or false, so you can use it in a conditional check before making the cast. 
+
+### **The 'as' keyword**
+
+The operator **as** works like a cast *except*:
+- Exception won't be thrown
+
+- Null is returned if the cast doesn't work
+
+- Slightly more efficient than a check with is
+
+- “is” requires two checks to determine whether the object is of the required type, because
+the check is still performed again during the cast. 
+
+- Can use the “as” operator to perform the check and assignment in one operation. 
+
+- However, “as” will return null if the object is not of the proper
+type, so a conditional check as shown above will still be required. 
+
+```C#
+if (shape is Ellipse) {
+    double circumference = ((Ellipse)shape).Circumference;
+
+//is equivalent to:
+
+Ellipse ellipse = shape as Ellipse;
+if (ellipse != null) {
+    double circumference = ellipse.Circumference;
+}
+
+```
+
 ---
 
 
