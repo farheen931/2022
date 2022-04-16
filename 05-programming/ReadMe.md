@@ -1346,7 +1346,7 @@ public class Polygon : Shape
     public int NumberOfSide{get; set;}
 }
 
-public class Rectangle : Shape 
+public class Rectangle : Polygon 
 {
     //Rectangle-specific stuff
 }
@@ -1356,7 +1356,7 @@ public class Ellipse : Shape
     //Ellipse-specific stuff
 }
 
-public class Triangle : Shape 
+public class Triangle : Polygon 
 {
     //Triangle-specific stuff
 }
@@ -1364,13 +1364,83 @@ public class Triangle : Shape
 ```
 
 ### **Derived constructors**
-- hello
+- This is an example of using a constructor with inheritance 
+
+```c#
+public class Shape {
+    public Point Position {get; set;}
+    public Color Colour {get; set;}
+
+    //The only way to instantiate a Shape is to specify a colour and position
+    //Still true for derived classes 
+
+    public Shape(Point position, Color colour) {
+        Position = position;
+        Colour = colour;
+    }
+}
+
+public class Ellipse : Shape {
+    public int XRadius {get; set;}
+    public int YRadius {get; set;}
+    
+    public Ellipse(Point position, Color colour, int XRadius, int yRadius) 
+    : base(position, colour) { //chain to base class ctor
+        XRadius = xRadius;
+        YRadius = yRadius;
+    }
+}
+
+Ellipse e1 = new Ellipse(new Point(4,7), Color.Azure, 23, 34);
+
+```
+- The shape class only has one constructor but takes two parameters 
+
+- Constructor aren't inherited but rules they encapsulate are 
+
+- Any class derived from Shape, must have some way of telling its base class what position and colour it should have 
+
+- Ellipse constructor takes 4 parameters, first two (position and colour) are passed up to base class = Common with inheritance
+
+- Second Ellipse constructor doesn't need to specify which base constructor will be used as it chains to the 4 argument Ellipse constructor 
+
+- Not possible to use both this() and base() for the same constructor
 
 ### **Polymorphism**
-- hello
+- Inheritance is the ability to define one object as a variation of another
+
+- Polymorphism is the ability to use that variation wherever an instance of the original is expected
+
+- = Manipulate an object without knowing its exact type
+
+- Crucial keywords are virtual and overrisde 
+
+- Derived class inherits all the instance methods of the base class but it can also modify inherited behaviour by overriding it
+
+- = Derived class defines method with exactly the same signature and return type as one in a base class 
+
+```c#
+public class Shape {
+    public virtual int Area {get;}
+}
+
+public class Ellipse : Shape {
+    public override int Area {get;}
+}
+
+Ellipse e = new Ellipse();
+Shape s = e;
+Console.WriteLine(s.Area);
+```
 
 ### **Protected**
-- hello
+- Only accessible to the delcaring class and any class which is derived from it = Can add methods, properties and constructors that only the derived class can see 
+
+- Restricts access to methods and properties 
+
+- Fields should be private
+
+---
 
 ### **Access Modifiers**
 There are 5 access modifiers in C#
@@ -1384,13 +1454,100 @@ There are 5 access modifiers in C#
 | protected internal   | Accessible to any code that is either in the same assembly or inherits from the type     |
 
 ### **Invoking Base Class Functionality**
-- hello
+- Derived class can access base class members = avoids code duplication and access to private fields
+
+- To call a base class member, use the base reference 
+
+```c#
+public class Ellipse : Shape {
+    public override void Draw() {
+
+    base.Draw(); //do base class functionality first
+
+    Brush br = new SolidBrush(base.Colour)
+    }
+}
+```
+
+- Reasons for overriding are to replace the overriden method entirely, call base class's implementation, perform own coe and call base class's code 
+
+- To do this, use the base keyword and call the appropriate method/property 
 
 ### **Abstract Classes**
-- hello
+
+Factor out as much common data  into a shared base class. 
+
+If this base class becomes so general that it is used only as a framework by derived classes and is never instantiated = abstract class.
+
+High level implementation of a concept:
+
+- Can't be instantiated, designed to be sub class
+
+- Sets a contract that each subclass needs to be meet
+
+```c#
+// Author of the Shape class doesn't know how a specific shape will be drawn nor how to calculate the area
+
+// But, can determine that all shapes can be drawn and have area calculated = can add abstract definion of this behaviour without providing actual implementation
+
+public abstract class Shape {
+    //concrete properties and methods 
+
+    public abstract void Draw();
+    // abstract methods have no body. Must be overridden
+
+    public abstract double Area {get;}
+}
+```
+
+- Derived classes must replace (via overriding) the abstract with a concrete implementation
+
+- A class is declared abstract using the abstract keyword 
+
+- Abstract method has no method body, just a signature that include keyword abstract
+
+### **Abstract Methods/Properties**
+
+- Abstract method can't meaningfully be implemented by a class 
+
+- Any class with one or more abstract methods is an abstract class and has to be marked with the keyword
+
+- Concrete derived class need sto implement all the abstract method of the base class = can't ignore any
+
+- Declaration of an abstract method in an abstract base class forces all concrete descendants of that class to implement that method. 
+
+- Any derived class that does not
+implement all of the abstract methods of a base class is implicitly abstract and cannot be instantiated.
+
 
 ### **Casting**
-- hello
+- Object of a derived class can be treated as an object of a base class without explicit casting ("widening")
+
+- Upcasting is safe 
+
+- Base type variable needs to be explicitly cast to use as a derived type = "narrowing"/down-cast
+
+- Can only invoke methods and properties of the base type when working with a base type reference 
+
+```c#
+public class Shape {
+}
+
+public class Ellipse : Shape {
+}
+
+Shape s = myDrawing.Shapes[1];
+s.Draw(canvas); //Compiler will check Draw is defined in the derived class 
+
+
+//To define a method in the derived class, like circumference, a downcast is performed using casting syntax 
+
+//Won't work if shape 1 is triangle or rectangle
+Ellipse e = (Ellipse)s;
+double cirumference = e.Circumference
+
+
+```
 
 ### **The 'is' keyword**
 - If the runtime object is not an object of the derived class an **InvalidCastException** is thrown 
