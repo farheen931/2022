@@ -1602,6 +1602,28 @@ if (ellipse != null) {
 ```
 
 ---
+## **Interfaces**
+---
+An interface is similar to a **fully abstract** class:
+
+- So, all the members of the interface are **abstract** - there is no implementation code 
+
+- In C#, you can implement **multiple interfaces**
+
+- If you implement the interface it forces you to **write the logic** 
+
+- There can be **no fields and it can't be instantiated**
+
+An interface is defined using the **keyword interface**:
+
+- **I___** is the **naming** convention, for example **iComparable** 
+
+- Interface members are implicilty **public, abstract and non-static**
+
+- They can only be **methods, properties, events and indexers**
+
+### **Implementing an interface**
+
 
 
 
