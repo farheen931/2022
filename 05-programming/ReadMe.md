@@ -1608,8 +1608,6 @@ An interface is similar to a **fully abstract** class:
 
 - So, all the members of the interface are **abstract** - there is no implementation code 
 
-- In C#, you can implement **multiple interfaces**
-
 - If you implement the interface it forces you to **write the logic** 
 
 - There can be **no fields and it can't be instantiated**
@@ -1622,9 +1620,171 @@ An interface is defined using the **keyword interface**:
 
 - They can only be **methods, properties, events and indexers**
 
+```C#
+public interface IDrawable {
+    void Draw();
+}
+```
+
 ### **Implementing an interface**
 
+- List interfaces after the base class (if specified)
+
+- All the members must be implemented 
+
+```C#
+public abstract class Shape {
+    public abstract double Area {get;}
+}
+///
+
+public interface IDrawable {
+    void Draw(Graphics g);
+}
+///
+
+public class Rectangle : Shape, IDrawable {
+    public int Width {get; set; }
+    public int Height {get; set; }
+    public override double Area {
+        get {return Width * Height;}
+    }
+    public void Draw(Graphics g) {
+        -
+    }
+}
+```
+
+### **Polymorphism**
+- An interface defines a new type, like a class 
+
+- Any class which implements pf an interface "is" of that type 
+
+- If the method has a parameter of an interface type, it can be passed a reference to any object that implements the interface 
+
+- Can have collections of objects which implement a specific interface
+
+```c#
+private void DrawDrawables() {
+    List<Shape> shapes = GetContentOfDrawingFile();
+
+    foreach (Shape shape in shapes) {
+        if (shape is IDrawable) {
+            (IDrawable)shape).Draw(canvas);
+            //or:
+            ProcessDrawable(shape as IDrawable);
+        }
+    }
+}
+
+```
+```c#
+private void ProcessDrawable(IDrawable id) {
+    id.Draw(canvas);
+}
+```
+
+### **Multiple Interfaces**
+
+- In C#, you can implement **multiple interfaces**
+
+- C# doesn't distinghish between inheriting an interface and a base class in terms of syntax 
+
+- You implement a interface, rather than inherit 
+
+```C#
+public interface IComparable {
+    int CompareTo(object obj);
+}
+
+////
+public interface IDrawable {
+    void Draw(Graphics g);
+}
+
+////
+
+public class Rectangle : Shape, IDrawable, IComparable {
+    public int Width {get; set;}
+    public int Height {get; set;}
+    public void Draw(Graphics g) {
+        ...
+    }
+    public int CompareTo(object obj){
+        Rectangle r = (Rectangle)obj;
+        return ...
+    }
+}
+
+```
+- An interface can inherit from another/many interfaces
+
+```c#
+public interface ISteerable {
+    void TurnLeft();
+    void TurnRight();
+}
+
+public interface IFullySteerable : ISteerable {
+    void GoUp();
+    void GoDown();
+}
+
+```
+
+- A struct can implement an interface but an interface reference is always a reference type even though struct is a value type
 
 
+### **Multiple Interface issues**
+
+- Two **implementations** with the **same method** vut **different semantics** 
+
+```c#
+public interface ICowboy {
+    void Draw(Graphics g);
+}
+
+public interface IDrawable {
+    void Draw(Graphics g);
+}
+
+public class CowboyShape : ICowboy, IDrawable {
+    public void Draw(Graphics g) {
+        ...
+    }
+}
+
+```
 
 
+### **Explicit Interface implementation**
+
+- Can say they have different implementations by **prefixing** with the **interface name**
+
+- A class can provide an explicit implementation 
+
+- It is defined with the interface and method name and no access modifier
+
+- Implicitly public through the interface reference 
+
+```c#
+public class CowboyShape : IDrawable, ICowboy {
+    public void Draw(Graphics g) { //explicit
+        Console.WriteLine("Drawing a cowboy shape");
+    }
+
+    void ICowboy.Draw(Graphics g) { //implicit
+        Console.WriteLine("Reach for the sky mister");
+    }
+}
+
+CowboyShape cs = new CowboyShape();
+cs.Draw(); //drawing a cowboy
+
+IDrawable id = cs;
+id.Draw(); //drawing a cowboy
+
+ICowboy ic = cs;
+ic.Draw(); //reach for the sky
+
+```
