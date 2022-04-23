@@ -1788,3 +1788,154 @@ ICowboy ic = cs;
 ic.Draw(); //reach for the sky
 
 ```
+---
+## **Dependency Injection**
+---
+
+ ### **SOLID Principles:**
+ 
+ - **S**ingle Responsibility Principle
+ - **O**pen/Closed Principle
+ - **L**iskov's Substitution Principle
+ - **I**nterface Segregation Principle
+ - **D**ependency Inversion Principle
+
+ = Dependency Injection is used to build the hosting, configuration, logging and ASP.NET Core
+
+ ### **STUPID Principles:**
+ - **S**ingleton
+ - **T**ight coupling 
+ - **U**ntestability 
+ - **P**remature Optimisation
+ - **I**ndescriptive Naming
+ - **D**uplication
+
+ ### **Benefits of Dependency Injection**
+
+ - Supports unit testing
+
+ - Details should depend on abstractions
+
+
+### **Aspects of a DIFramework**
+
+- Globally available container
+
+- Specify an interface to implementation mapping
+
+### **ASP.NET Core DI Lifetimes**
+
+**Transient**
+- Produces a new object for every new instance of the dependent class 
+
+**Scoped**
+- Produces a new object for every new request and lasts the whole request
+
+**Singleton**
+- Produces a new object that lasts the lifetime of the application
+
+### **Registering**
+
+- Dependencies are registers in Startup/ConfigureServices()
+
+- By specifying the scope  and which concrete class should be used to satisfy which interface:
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddTransient<ITransient, TransientDependency>();
+
+    services.AddScoped<IScoped, ScopedDependency>();
+
+    services.AddSingleton<ISingleton, SingletonDependency>();
+}
+
+```
+
+- DI allows for multiple registrations 
+
+- E.g.: Set of rules that need to be evaluated = Enter multiple registrations
+
+- On the consuming side you would need to specify:
+
+     **IEnumerable< IRule > rules**
+
+- Then in your code, iterate around them all
+
+### **Constructor Injection**
+
+Common arrangement: 
+
+```c#
+public class ForumViewModel
+{
+    ILogging log;
+    public ForumViewModel(ILogging log) {
+        this.log = log;
+    }
+}
+```
+
+### **.NET manages:**
+
+- **Memory:** Has a garbage collector
+
+- **Threads:** Thin abstraction over the threads provided by the OS 
+
+- Doesn't manage recycling of resources 
+
+### **If not using DI for a particular resource:**
+
+- 'New' an object AND object has .Dispose() on the interface then you have to ensure you call .Dispose() when done with the object
+
+```c#
+//If the disposable object created is all within a method 
+
+//THEN consider using 'using' that automatically calls .Dispose():
+
+using (MyDisposableobject mdo = new MyDisposableObject()) {
+    ...
+}
+
+//ELSE pass on the responsibility by implementing IDisposable:
+
+public class MyDisposableClass : IDisposable {
+    public void Dispose() {
+        ...
+    }
+}
+
+//OR use Dependency Injection (that assumes this responsibility)
+// - ServiceProvider class implements IDisposable 
+
+// - Must dispose the ServiceProvider so it can dispose of any objects it still thinks you are using
+
+```
+
+### **Implicit 'using'**
+
+```c#
+//.NET Core only: 
+
+using (expression | type identifier = initializer) {
+    ...
+}
+
+////
+
+using (Font f1 = new Font(...), f2 = new Font(...)) {
+    ...
+} // compiler will call Dispose on f1 and f2
+
+Font f3 = new Font(...);
+using (f3) {
+    ...
+} // compiler will call Dispose on f3
+
+public void Method() {
+    using Font f1 = new Font();
+    ...
+    ...
+}
+/// The implicit using statement (extends to end of block)
+```
